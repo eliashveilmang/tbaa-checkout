@@ -95,7 +95,7 @@ function getShippingRateId(country) {
 }
 
 // Keep your embedded checkout endpoint separate
-app.post('/create-embedded-checkout-session', async (req, res) => {
+app.post('/create-checkout-session', async (req, res) => {
   try {
     const session = await stripe.checkout.sessions.create({
       ui_mode: 'embedded',
@@ -120,7 +120,7 @@ app.post('/create-embedded-checkout-session', async (req, res) => {
         },
       ],
       mode: 'payment',
-      return_url: `${YOUR_DOMAIN}/return.html?session_id={CHECKOUT_SESSION_ID}`,
+      return_url: `https://eliasimg.de/return?session_id={CHECKOUT_SESSION_ID}`,
       automatic_tax: {enabled: true},
       permissions: {
         update: {
@@ -130,13 +130,10 @@ app.post('/create-embedded-checkout-session', async (req, res) => {
     });
 
     console.log("Embedded Checkout Session Created:", session.id);
-    res.send({clientSecret: session.client_secret});
+    
+    res.json({ clientSecret: session.client_secret }); // Return clientSecret for embedded checkout
   } catch (error) {
-    console.error('Error creating session:', error);
-    res.status(500).send({ 
-      error: error.message,
-      details: error.toString()
-    });
+    res.status(500).json({ error: error.message });
   }
 });
 
