@@ -1,4 +1,4 @@
-// This is your public test API key.
+// This is your public live API key.
 const stripe = Stripe("pk_live_51QP5vhDiRHn1y6KS3GBaWIQqIQ0jgaddsz3Qo2PDBuiSmBFoDbJVqyj2y5LnzSk1vMaTBCa6NnB5fEZEazdegfz2007uJcUD4O", {
   betas: ['embedded_checkout_byol_beta_1']
 });
@@ -7,79 +7,63 @@ document.addEventListener('DOMContentLoaded', function() {
   initialize();
 });
 
-// Create a Checkout Session with dynamic shipping
+// Initialize Embedded Checkout
 async function initialize() {
   try {
     // Fetch Checkout Session and retrieve the client secret
     const fetchClientSecret = async () => {
-      try {
-        const response = await fetch("/create-checkout-session", {
-          method: "POST",
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        });
-
-        
-        if (!response.ok) {
-          const errorText = await response.text();
-          console.error(`Error response from server: ${errorText}`);
-          throw new Error(`HTTP error! status: ${response.status}`);
+      const response = await fetch("/create-checkout-session", {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json'
         }
-        
-        const data = await response.json();
-        console.log("Client secret received:", data.clientSecret ? "Yes" : "No");
-        return data.clientSecret;
-      } catch (error) {
-        console.error("Error fetching client secret:", error);
-        throw error;
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`Error response from server: ${errorText}`);
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
+
+      const data = await response.json();
+      console.log("Client secret received:", data.clientSecret ? "Yes" : "No");
+      return data.clientSecret;
     };
 
     // Call your backend to set shipping options
-    // Modify the onShippingDetailsChange function
     const onShippingDetailsChange = async (shippingDetailsChangeEvent) => {
       console.log("===== SHIPPING DETAILS CHANGE EVENT =====");
       console.log("Full Event Object:", JSON.stringify(shippingDetailsChangeEvent, null, 2));
-      
+
       const { checkoutSessionId, shippingDetails } = shippingDetailsChangeEvent;
 
       if (!shippingDetails) {
         console.error("Error: shippingDetails is missing from event.");
         return { type: "reject", errorMessage: "Shipping details are missing." };
       }
-      
+
       console.log("Checkout Session ID:", checkoutSessionId);
       console.log("Shipping Details:", JSON.stringify(shippingDetails, null, 2));
-    
+
       // Comprehensive field validation
       const missingFields = [];
-      if (!shippingDetails) {
-        console.error("NO SHIPPING DETAILS PROVIDED");
-        return { 
-          type: "reject", 
-          errorMessage: "Shipping details are missing. Please complete all required fields." 
-        };
-      }
-    
-      // Check for required fields
       if (!shippingDetails.name) missingFields.push("Name");
       if (!shippingDetails.address) missingFields.push("Address");
       if (!shippingDetails.address?.line1) missingFields.push("Address Line 1");
       if (!shippingDetails.address?.city) missingFields.push("City");
       if (!shippingDetails.address?.postal_code) missingFields.push("Postal Code");
       if (!shippingDetails.address?.country) missingFields.push("Country");
-    
+
       if (missingFields.length > 0) {
         console.error("MISSING FIELDS:", missingFields);
-        return { 
-          type: "reject", 
-          errorMessage: `Please complete the following shipping details: ${missingFields.join(", ")}` 
+        return {
+          type: "reject",
+          errorMessage: `Please complete the following shipping details: ${missingFields.join(", ")}`
         };
       }
-    
-// Add this log before the fetch call
-console.log("About to send request to /calculate-shipping-options");
+
+      // Add this log before the fetch call
+      console.log("About to send request to /calculate-shipping-options");
 
       try {
         // Instead of using updateShippingAddress, send to server for handling
@@ -92,47 +76,43 @@ console.log("About to send request to /calculate-shipping-options");
           headers: { "Content-Type": "application/json" },
         });
 
-        const responseData = await response.json(); // Ensure response is parsed only once
+        const responseData = await response.json();
+        // Add this log after parsing the response
+        console.log("Received result from server:", JSON.stringify(responseData, null, 2));
 
-      // Add this log after parsing the response
-      console.log("Received result from server:", JSON.stringify(responseData, null, 2));
-
-      if (responseData.type === 'error') {
-        return { type: "reject", errorMessage: responseData.message };
-      } else {
-        return { type: "accept" };
-      }
+        if (responseData.type === 'error') {
+          return { type: "reject", errorMessage: responseData.message };
+        } else {
+          return { type: "accept" };
+        }
       } catch (error) {
         console.error('Error processing shipping details:', error);
-        return { 
-          type: "reject", 
-          errorMessage: `Shipping details error: ${error.message}` 
-        };
+        return { type: "reject", errorMessage: `Shipping details error: ${error.message}` };
       }
     };
 
-    console.log("Sending request to /calculate-shipping-options");
+    // Send request to fetch the client secret
+    const clientSecret = await fetchClientSecret();
 
-    console.log("Initializing embedded checkout...");
+    // Initialize embedded checkout with the fetched client secret
+    const checkout = await stripe.initEmbeddedCheckout({
+      fetchClientSecret: () => Promise.resolve(clientSecret), // Pass in the client secret
+      onShippingDetailsChange, // Pass the shipping details change handler
+    });
 
+    console.log("Checkout initialized, mounting to DOM...");
+
+    // Show loading spinner, hide checkout content
     document.getElementById('loading').style.display = 'flex';
     document.getElementById('checkout').style.display = 'none';
 
-    // Initialize Checkout with shipping calculation
-const checkout = await stripe.initEmbeddedCheckout({
-  fetchClientSecret,
-  onShippingDetailsChange,
-});
-console.log("Checkout initialized, mounting to DOM...");
-
-// Hide loading and show checkout container
-document.getElementById('loading').style.display = 'none';
-document.getElementById('checkout').style.display = 'block';
-    
-    // Mount Checkout
+    // Mount checkout
     checkout.mount('#checkout');
-    console.log("Checkout mounted");
-    
+
+    // Hide loading spinner, show checkout content
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('checkout').style.display = 'block';
+
   } catch (error) {
     console.error("Initialization error:", error);
     document.querySelector('#checkout').innerHTML = `
