@@ -203,31 +203,54 @@ app.post('/calculate-shipping-options', async (req, res) => {
   console.log("===== SHIPPING OPTIONS REQUEST =====");
 
   try {
-    const { checkout_session_id, shipping_details } = req.body;
+    const {checkout_session_id, shipping_details} = req.body;
 
     if (!shipping_details) {
       return res.status(400).json({ type: "error", message: "Shipping details missing in request." });
     }
-
+    
     console.log("Full Shipping Details:", JSON.stringify(shipping_details, null, 2));
+    
+    // Robust validation
+    const isAddressComplete = 
+      shipping_details 
+      && shipping_details.name && shipping_details.name.trim() !== ''
+      && shipping_details.address 
+      && shipping_details.address.line1 && shipping_details.address.line1.trim() !== ''
+      && shipping_details.address.city && shipping_details.address.city.trim() !== ''
+      && shipping_details.address.postal_code && shipping_details.address.postal_code.trim() !== ''
+      && shipping_details.address.country && shipping_details.address.country.trim() !== '';
+
+    if (!isAddressComplete) {
+      console.log("INCOMPLETE SHIPPING DETAILS - REJECTING");
+      return res.status(400).json({
+        type: 'error', 
+        message: 'Please provide complete shipping information'
+      });
+    }
+
+    // Get the country from shipping details
+    const country = shipping_details.address.country;
+      
+    // Get the appropriate shipping rate ID
+    const shippingRateId = getShippingRateId(country);
+    
+    console.log("Selected Shipping Rate ID:", shippingRateId);
+    
+    // Retrieve current session to verify its state
+    const currentSession = await stripe.checkout.sessions.retrieve(checkout_session_id);
 
     // Validate shipping details
     if (!validateShippingDetails(shipping_details)) {
-      console.log("INCOMPLETE SHIPPING DETAILS - REJECTING");
-      return res.status(400).json({ type: 'error', message: 'Please provide complete shipping information' });
+      return res.json({ type: "error", message: "Invalid shipping details." });
     }
 
-    const country = shipping_details.address.country;
-    const shippingRateId = getShippingRateId(country);
-    console.log("Selected Shipping Rate ID:", shippingRateId);
+    // Calculate shipping options
+    const shippingOptions = calculateShippingOptions(shipping_details, currentSession);
 
-    if (!shippingRateId) {
-      return res.status(400).json({ type: "error", message: "No valid shipping rate found." });
-    }
-
+    // Update the Checkout Session with ONLY shipping options
     try {
       const updatedSession = await stripe.checkout.sessions.update(checkout_session_id, {
-        shipping_options: [{ shipping_rate: shippingRateId }],
         collected_information: {
           shipping_details: {
             name: shipping_details.name,
@@ -241,12 +264,17 @@ app.post('/calculate-shipping-options', async (req, res) => {
             },
           },
         },
+        shipping_options: [
+          {
+            shipping_rate: shippingRateId,
+          }
+        ]
       });
-
-      console.log("Session update successful", updatedSession);
-
+      
+      console.log("Session update successful");
+      
       return res.json({
-        type: 'object',
+        type: 'object', 
         value: {
           succeeded: true,
           sessionId: updatedSession.id
