@@ -94,51 +94,6 @@ function getShippingRateId(country) {
   }
 }
 
-// Modified endpoint for redirect checkout (for Readymag)
-app.post('/create-checkout-session', async (req, res) => {
-  try {
-    // For readymag integration we use redirect checkout instead of embedded
-    const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card'],
-      shipping_address_collection: {
-        allowed_countries: ['US', 'CA', 'DE', 'GB', 'FR', 'IT', 'ES', 'AT', 'BE', 'NL', 'DK', 'SE', 'FI', 'NO'], 
-      },
-      shipping_options: [
-        {
-          shipping_rate: SHIPPING_RATES.DE,
-        },
-        {
-          shipping_rate: SHIPPING_RATES.EU,
-        },
-        {
-          shipping_rate: SHIPPING_RATES.OTHER,
-        }
-      ],
-      line_items: [
-        {
-          price: 'price_1R055YDiRHn1y6KSCIrUYuxJ',
-          quantity: 1,
-        },
-      ],
-      mode: 'payment',
-      success_url: `https://eliasimg.de/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `https://eliasimg.de/cancel`,
-      automatic_tax: {enabled: true},
-    });
-
-    console.log("Redirect Checkout Session Created:", session.id);
-    
-    // Return the session ID for redirectToCheckout
-    res.json({ sessionId: session.id });
-  } catch (error) {
-    console.error('Error creating session:', error);
-    res.status(500).send({ 
-      error: error.message,
-      details: error.toString()
-    });
-  }
-});
-
 // Keep your embedded checkout endpoint separate
 app.post('/create-embedded-checkout-session', async (req, res) => {
   try {
