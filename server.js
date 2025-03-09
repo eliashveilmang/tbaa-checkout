@@ -97,6 +97,7 @@ function getShippingRateId(country) {
 
 // Keep your embedded checkout endpoint separate
 app.post('/create-checkout-session', async (req, res) => {
+  console.log('Received request for checkout session');
   try {
     const session = await stripe.checkout.sessions.create({
       ui_mode: 'embedded',
