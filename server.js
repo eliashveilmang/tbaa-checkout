@@ -8,6 +8,9 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY, {
 const express = require('express');
 const app = express();
 
+app.use(express.static('public'));
+app.use(express.json()); // Add this to parse JSON request bodies
+
 const port = process.env.PORT || 4242;
 
 const YOUR_DOMAIN = process.env.DOMAIN || 'https://tbaa-ehv.herokuapp.com';
@@ -46,8 +49,6 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use(express.static('public'));
-app.use(express.json()); // Add this to parse JSON request bodies
 
 // Define your shipping rates
 const SHIPPING_RATES = {
