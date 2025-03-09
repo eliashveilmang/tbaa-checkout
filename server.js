@@ -130,7 +130,7 @@ app.post('/create-checkout-session', async (req, res) => {
     });
 
     console.log("Embedded Checkout Session Created:", session.id);
-    
+
     res.json({ clientSecret: session.client_secret }); // Return clientSecret for embedded checkout
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -264,6 +264,4 @@ app.get("/", (req, res) => {
   res.send("Server is running! Ready for Stripe checkout integration.");
 });
 
-app.listen(port, () => {
-  console.log(`Running on port ${port}`);
-});
+app.listen(PORT, () => console.log(`Running on port ${PORT}`));
