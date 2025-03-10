@@ -12,6 +12,8 @@ const app = express();
 const cors = require("cors");
 app.use(cors({ origin: "*" })); // Allow all origins for now
 
+console.log(process.env.STRIPE_PUBLIC_KEY);
+
 app.get('/test-cors', (req, res) => {
   console.log(res.getHeaders());  // Log the response headers
   res.json({ message: 'CORS is working!' });
