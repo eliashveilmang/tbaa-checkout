@@ -11,6 +11,10 @@ const app = express();
 const cors = require("cors");
 app.use(cors({ origin: "*" })); // Allow all origins for now
 
+app.get('/test-cors', (req, res) => {
+  res.json({ message: 'CORS is working!' });
+});
+
 app.use(express.static('public'));
 app.use(express.json()); // Add this to parse JSON request bodies
 
