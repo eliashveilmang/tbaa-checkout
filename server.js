@@ -13,7 +13,7 @@ app.use(express.json()); // Add this to parse JSON request bodies
 
 const port = process.env.PORT || 4242;
 
-const YOUR_DOMAIN = process.env.DOMAIN || 'https://tbaa-ehv.herokuapp.com';
+const YOUR_DOMAIN = process.env.DOMAIN || 'https://tbaa-ehv-4792f0431457.herokuapp.com';
 
 // Add CORS middleware - this is critical for external access
 app.use((req, res, next) => {
