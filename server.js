@@ -8,17 +8,13 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY, {
 const express = require('express');
 const app = express();
 
+// Allow all origins for now - CORS Middleware
 const cors = require("cors");
 app.use(cors({ origin: "*" })); // Allow all origins for now
 
-app.get('/test-cors', (req, res) => {
-  res.json({ message: 'CORS is working!' });
-});
-
+// Add other middleware
 app.use(express.static('public'));
 app.use(express.json()); // Add this to parse JSON request bodies
-
-const port = process.env.PORT || 4242;
 
 const YOUR_DOMAIN = process.env.DOMAIN || 'https://tbaa-ehv-4792f0431457.herokuapp.com';
 
@@ -101,6 +97,11 @@ function getShippingRateId(country) {
     return SHIPPING_RATES.OTHER;
   }
 }
+
+// Test route for CORS check
+app.get('/test-cors', (req, res) => {
+  res.json({ message: 'CORS is working!' });
+});
 
 // Keep your embedded checkout endpoint separate
 app.post('/create-checkout-session', async (req, res) => {
@@ -273,4 +274,5 @@ app.get("/", (req, res) => {
   res.send("Server is running! Ready for Stripe checkout integration.");
 });
 
+const port = process.env.PORT || 4242;
 app.listen(PORT, () => console.log(`Running on port ${PORT}`));
