@@ -157,7 +157,7 @@ async function initialize() {
     checkoutEl.style.display = 'block';
     
     // Mount Checkout
-    checkout.mount('#checkout');
+    checkout.mount('#stripe-checkout-container');
     console.log("Checkout mounted");
     
   } catch (error) {
