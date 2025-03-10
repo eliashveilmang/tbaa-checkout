@@ -12,7 +12,7 @@ const app = express();
 const cors = require("cors");
 app.use(cors({ origin: "*" })); // Allow all origins for now
 
-console.log(process.env.STRIPE_PUBLISHABLE_KEY);
+console.log(process.env.STRIPE_PUBLIC_KEY);
 
 app.get('/test-cors', (req, res) => {
   console.log(res.getHeaders());  // Log the response headers
@@ -23,7 +23,7 @@ app.get('/test-cors', (req, res) => {
 app.use(express.static('public'));
 app.use(express.json()); // Add this to parse JSON request bodies
 
-const YOUR_DOMAIN = process.env.DOMAIN || 'https://tbaa-ehv-4792f0431457.herokuapp.com';
+const DOMAIN = process.env.DOMAIN || 'https://tbaa-ehv-4792f0431457.herokuapp.com';
 
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*'); // Allow all origins
@@ -37,8 +37,8 @@ app.use((req, res, next) => {
 });
 
 // Endpoint to get the public Stripe key
-app.get('/stripe-publishable-key', (req, res) => {
-  res.json({ publishableKey: process.env.STRIPE_PUBLISHABLE_KEY });
+app.get('/stripe-public-key', (req, res) => {
+  res.json({ publicKey: process.env.STRIPE_PUBLIC_KEY });
 });
 
 // Set Content-Security-Policy header for all responses
