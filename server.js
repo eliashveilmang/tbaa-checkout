@@ -16,6 +16,11 @@ app.use(cors({ origin: "*" })); // Allow all origins for now
 app.use(express.static('public'));
 app.use(express.json()); // Add this to parse JSON request bodies
 
+// Test route for CORS check
+app.get('/test-cors', (req, res) => {
+  res.json({ message: 'CORS is working!' });
+});
+
 const YOUR_DOMAIN = process.env.DOMAIN || 'https://tbaa-ehv-4792f0431457.herokuapp.com';
 
 // Add CORS middleware - this is critical for external access
@@ -97,11 +102,6 @@ function getShippingRateId(country) {
     return SHIPPING_RATES.OTHER;
   }
 }
-
-// Test route for CORS check
-app.get('/test-cors', (req, res) => {
-  res.json({ message: 'CORS is working!' });
-});
 
 // Keep your embedded checkout endpoint separate
 app.post('/create-checkout-session', async (req, res) => {
