@@ -8,6 +8,9 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY, {
 const express = require('express');
 const app = express();
 
+const cors = require("cors");
+app.use(cors({ origin: "*" })); // Allow all origins for now
+
 app.use(express.static('public'));
 app.use(express.json()); // Add this to parse JSON request bodies
 
