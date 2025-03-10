@@ -12,14 +12,14 @@ const app = express();
 const cors = require("cors");
 app.use(cors({ origin: "*" })); // Allow all origins for now
 
-// Add other middleware
-app.use(express.static('public'));
-app.use(express.json()); // Add this to parse JSON request bodies
-
 // Test route for CORS check
 app.get('/test-cors', (req, res) => {
   res.json({ message: 'CORS is working!' });
 });
+
+// Add other middleware
+app.use(express.static('public'));
+app.use(express.json()); // Add this to parse JSON request bodies
 
 const YOUR_DOMAIN = process.env.DOMAIN || 'https://tbaa-ehv-4792f0431457.herokuapp.com';
 
