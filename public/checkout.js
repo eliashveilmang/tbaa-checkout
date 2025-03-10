@@ -43,29 +43,33 @@ async function initialize() {
     
     // Fetch Checkout Session and retrieve the client secret
     const fetchClientSecret = async () => {
+      console.log("Fetching client secret from:", `${SERVER_URL}/create-checkout-session`);
       try {
-        console.log("Fetching client secret from:", `${SERVER_BASE_URL}/create-checkout-session`);
-        
-        const response = await fetch(`${SERVER_BASE_URL}/create-checkout-session`, {
+        const response = await fetch(`${SERVER_URL}/create-checkout-session`, {
           method: "POST",
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          credentials: 'include' // Include cookies for cross-origin requests if needed
+          headers: { 
+            'Content-Type': 'application/json' 
+          }
         });
-
+        
         if (!response.ok) {
           const errorText = await response.text();
-          console.error(`Error response from server: ${errorText}`);
-          throw new Error(`HTTP error! status: ${response.status}`);
+          console.error(`Server error: ${errorText}`);
+          throw new Error(`HTTP error: ${response.status}`);
         }
         
         const data = await response.json();
-        console.log("Client secret received:", data.clientSecret ? "Yes" : "No");
-        return data.clientSecret;
+        console.log("Client secret received:", !!data.clientSecret);
+        
+        // The key fix: Check and return only the string
+        if (typeof data.clientSecret !== 'string') {
+          throw new Error('Invalid client secret format received from server');
+        }
+        
+        return data.clientSecret; // Return just the string
       } catch (error) {
         console.error("Error fetching client secret:", error);
-        throw error;
+        throw error; // Re-throw to let Stripe handle the error
       }
     };
 
