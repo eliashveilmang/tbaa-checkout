@@ -134,7 +134,12 @@ app.post('/create-checkout-session', async (req, res) => {
     }
   }
 
-  res.send({clientSecret: session.client_secret});
+  // Log the session and client secret for debugging
+  console.log("Session created:", session.id);
+  console.log("Client secret:", session.client_secret);
+  
+  // Make sure we're sending back exactly the client secret string
+  res.send({ clientSecret: session.client_secret });
 } catch (error) {
   console.error('Error creating session:', error);
   res.status(500).send({ 

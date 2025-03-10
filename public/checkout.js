@@ -59,19 +59,24 @@ async function initialize() {
         }
         
         const data = await response.json();
-        console.log("Client secret received:", !!data.clientSecret);
-        
-        // The key fix: Check and return only the string
-        if (typeof data.clientSecret !== 'string') {
-          throw new Error('Invalid client secret format received from server');
-        }
-        
-        return data.clientSecret; // Return just the string
-      } catch (error) {
-        console.error("Error fetching client secret:", error);
-        throw error; // Re-throw to let Stripe handle the error
-      }
-    };
+    console.log("Full server response:", JSON.stringify(data));
+    
+    // Check if clientSecret exists
+    if (!data.clientSecret) {
+      console.error("No clientSecret in response:", data);
+      throw new Error('No client secret in server response');
+    }
+    
+    // The client secret should be a string starting with "cs_"
+    console.log("Client secret type:", typeof data.clientSecret);
+    console.log("Client secret format check:", data.clientSecret.substring(0, 3));
+    
+    return data.clientSecret; // Return just the string
+  } catch (error) {
+    console.error("Error fetching client secret:", error);
+    throw error; // Re-throw to let Stripe handle the error
+  }
+};
 
     // Call your backend to set shipping options
     const onShippingDetailsChange = async (shippingDetailsChangeEvent) => {
