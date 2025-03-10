@@ -12,8 +12,8 @@ const app = express();
 const cors = require("cors");
 app.use(cors({ origin: "*" })); // Allow all origins for now
 
-// Test route for CORS check
 app.get('/test-cors', (req, res) => {
+  console.log(res.getHeaders());  // Log the response headers
   res.json({ message: 'CORS is working!' });
 });
 
@@ -23,15 +23,13 @@ app.use(express.json()); // Add this to parse JSON request bodies
 
 const YOUR_DOMAIN = process.env.DOMAIN || 'https://tbaa-ehv-4792f0431457.herokuapp.com';
 
-// Add CORS middleware - this is critical for external access
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*'); // Consider restricting this to your Readymag domain
-  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.header('Access-Control-Allow-Origin', '*'); // Allow all origins
+  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS'); // Allow the needed methods
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization'); // Allow the needed headers
   
-  // Handle preflight requests
   if (req.method === 'OPTIONS') {
-    return res.sendStatus(200);
+    return res.sendStatus(200);  // Respond to preflight request
   }
   next();
 });
