@@ -12,7 +12,7 @@ const app = express();
 const cors = require("cors");
 app.use(cors({ origin: "*" })); // Allow all origins for now
 
-console.log(process.env.STRIPE_PUBLIC_KEY);
+console.log(process.env.STRIPE_PUBLISHABLE_KEY);
 
 app.get('/test-cors', (req, res) => {
   console.log(res.getHeaders());  // Log the response headers
@@ -37,8 +37,8 @@ app.use((req, res, next) => {
 });
 
 // Endpoint to get the public Stripe key
-app.get('/stripe-public-key', (req, res) => {
-  res.json({ publicKey: process.env.STRIPE_PUBLIC_KEY });
+app.get('/stripe-publishable-key', (req, res) => {
+  res.json({ publishableKey: process.env.STRIPE_PUBLISHABLE_KEY });
 });
 
 // Set Content-Security-Policy header for all responses
