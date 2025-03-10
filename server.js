@@ -8,9 +8,12 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY, {
 const express = require('express');
 const app = express();
 
-// Allow all origins for now - CORS Middleware
-const cors = require("cors");
-app.use(cors({ origin: "*" })); // Allow all origins for now
+const cors = require('cors');
+
+app.use(cors({
+    origin: 'https://tbaa-ehv-4792f0431457.herokuapp.com',
+    methods: ['GET', 'POST'],
+}));
 
 console.log(process.env.STRIPE_PUBLIC_KEY);
 

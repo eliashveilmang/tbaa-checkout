@@ -9,7 +9,7 @@ async function initialize() {
     // Fetch Checkout Session and retrieve the client secret
     const fetchClientSecret = async () => {
       try {
-        const response = await fetch("https://tbaa-ehv-4792f0431457.herokuapp.com/create-checkout-session", {
+        const response = await fetch("/create-checkout-session", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
         });        
