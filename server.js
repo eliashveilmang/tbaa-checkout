@@ -114,7 +114,7 @@ app.post('/create-checkout-session', async (req, res) => {
         },
       ],
       mode: 'payment',
-      return_url: `${YOUR_DOMAIN}/return.html?session_id={CHECKOUT_SESSION_ID}`,
+      return_url: `https://eliasimg.de/return?session_id={CHECKOUT_SESSION_ID}`,
       automatic_tax: {enabled: true},
       // Add this permissions parameter to allow onShippingDetailsChange
       permissions: {
