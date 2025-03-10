@@ -18,7 +18,6 @@ const corsOptions = {
 
 app.use(cors(corsOptions)); // Add CORS middleware before other middleware
 
-
 // Set Content-Security-Policy header for all responses
 app.use((req, res, next) => {
   res.setHeader("Content-Security-Policy", 
@@ -35,19 +34,16 @@ app.use((req, res, next) => {
   next();
 });
 
-// Handle OPTIONS preflight requests
-app.options('*', cors(corsOptions));
-
 app.use(express.static('public'));
 app.use(express.json()); // Add this to parse JSON request bodies
 
-const YOUR_DOMAIN = process.env.DOMAIN || 'https://tbaa-ehv-4792f0431457.herokuapp.com';
+const YOUR_DOMAIN = 'https://tbaa-ehv-4792f0431457.herokuapp.com';
 
 // Define your shipping rates
 const SHIPPING_RATES = {
-  'DE': 'shr_1Qxql6DiRHn1y6KSJyObjdUb', // Standard Germany Shipping
-  'EU': 'shr_1QxqjgDiRHn1y6KSy3OZyfNs', // Standard EU Shipping
-  'OTHER': 'shr_1QxqkIDiRHn1y6KS9h4jOniO' // Standard International
+  'DE': 'shr_1R0KvnDiRHn1y6KSVogC3Erg', // Standard Germany Shipping
+  'EU': 'shr_1R0KydDiRHn1y6KSYZ3aUlzs', // Standard EU Shipping
+  'OTHER': 'shr_1R0Kz8DiRHn1y6KSqU0DZYeT' // Standard International
 };
 
 // EU country codes
@@ -109,12 +105,12 @@ app.post('/create-checkout-session', async (req, res) => {
       line_items: [
         {
           // Provide the exact Price ID of the product you want to sell
-          price: 'price_1QxVLxDiRHn1y6KSiu0Kg9b4',
+          price: 'price_1R055YDiRHn1y6KSCIrUYuxJ',
           quantity: 1,
         },
       ],
       mode: 'payment',
-      return_url: `https://eliasimg.de/return?session_id={CHECKOUT_SESSION_ID}`,
+      return_url: `${YOUR_DOMAIN}/return.html?session_id={CHECKOUT_SESSION_ID}`,
       automatic_tax: {enabled: true},
       // Add this permissions parameter to allow onShippingDetailsChange
       permissions: {
@@ -134,12 +130,7 @@ app.post('/create-checkout-session', async (req, res) => {
     }
   }
 
-  // Log the session and client secret for debugging
-  console.log("Session created:", session.id);
-  console.log("Client secret:", session.client_secret);
-  
-  // Make sure we're sending back exactly the client secret string
-  res.send({ clientSecret: session.client_secret });
+  res.send({clientSecret: session.client_secret});
 } catch (error) {
   console.error('Error creating session:', error);
   res.status(500).send({ 
