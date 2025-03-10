@@ -6,7 +6,18 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY, {
   apiVersion: '2024-11-20.acacia; checkout_server_update_beta=v1',
 });
 const express = require('express');
+const cors = require('cors'); // Add this line
 const app = express();
+
+// Configure CORS to allow requests from Readymag
+const corsOptions = {
+  origin: '*', // For testing, allow all origins. In production, specify your Readymag URL
+  methods: ['GET', 'POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+};
+
+app.use(cors(corsOptions)); // Add CORS middleware before other middleware
+
 
 // Set Content-Security-Policy header for all responses
 app.use((req, res, next) => {
@@ -23,6 +34,9 @@ app.use((req, res, next) => {
   );
   next();
 });
+
+// Handle OPTIONS preflight requests
+app.options('*', cors(corsOptions));
 
 app.use(express.static('public'));
 app.use(express.json()); // Add this to parse JSON request bodies

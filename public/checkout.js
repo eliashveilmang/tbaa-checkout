@@ -3,24 +3,57 @@ const stripe = Stripe("pk_live_51QP5vhDiRHn1y6KS3GBaWIQqIQ0jgaddsz3Qo2PDBuiSmBFo
   betas: ['embedded_checkout_byol_beta_1']
 });
 
+// Add your Heroku server base URL
+const SERVER_BASE_URL = "https://tbaa-ehv-4792f0431457.herokuapp.com";
+
+// Define a variable to track if checkout is being initialized
+let isInitializing = false;
+
 document.addEventListener('DOMContentLoaded', function() {
-  initialize();
+  console.log("DOM loaded, waiting to initialize...");
+  // Only initialize if not already in progress
+  if (!isInitializing) {
+    initialize();
+  }
 });
 
 // Create a Checkout Session with dynamic shipping
 async function initialize() {
+  // Prevent multiple initializations
+  if (isInitializing) {
+    console.log("Initialization already in progress, skipping...");
+    return;
+  }
+  
+  isInitializing = true;
+  console.log("Starting checkout initialization...");
+  
   try {
+    // Make sure the elements exist before trying to access them
+    const loadingEl = document.getElementById('loading');
+    const checkoutEl = document.getElementById('checkout');
+    
+    if (!loadingEl || !checkoutEl) {
+      throw new Error("Required DOM elements not found. Make sure 'loading' and 'checkout' elements exist.");
+    }
+    
+    // Show loading and hide checkout
+    loadingEl.style.display = 'flex';
+    checkoutEl.style.display = 'none';
+    
     // Fetch Checkout Session and retrieve the client secret
     const fetchClientSecret = async () => {
       try {
-        const response = await fetch("/create-checkout-session", {
+        console.log("Fetching client secret from:", `${SERVER_BASE_URL}/create-checkout-session`);
+        
+        const response = await fetch(`${SERVER_BASE_URL}/create-checkout-session`, {
           method: "POST",
           headers: {
             'Content-Type': 'application/json'
-          }
+          },
+          credentials: 'include' // Include cookies for cross-origin requests if needed
         });
 
-        
         if (!response.ok) {
           const errorText = await response.text();
           console.error(`Error response from server: ${errorText}`);
@@ -37,7 +70,6 @@ async function initialize() {
     };
 
     // Call your backend to set shipping options
-    // Modify the onShippingDetailsChange function
     const onShippingDetailsChange = async (shippingDetailsChangeEvent) => {
       console.log("===== SHIPPING DETAILS CHANGE EVENT =====");
       console.log("Full Event Object:", JSON.stringify(shippingDetailsChangeEvent, null, 2));
@@ -78,30 +110,29 @@ async function initialize() {
         };
       }
     
-// Add this log before the fetch call
-console.log("About to send request to /calculate-shipping-options");
+      console.log("About to send request to calculate shipping options");
 
       try {
-        // Instead of using updateShippingAddress, send to server for handling
-        const response = await fetch("/calculate-shipping-options", {
+        // Use absolute URL instead of relative path
+        const response = await fetch(`${SERVER_BASE_URL}/calculate-shipping-options`, {
           method: "POST",
           body: JSON.stringify({
             checkout_session_id: checkoutSessionId,
             shipping_details: shippingDetails,
           }),
           headers: { "Content-Type": "application/json" },
+          credentials: 'include' // Include cookies if needed
         });
 
-        const responseData = await response.json(); // Ensure response is parsed only once
+        const responseData = await response.json();
 
-      // Add this log after parsing the response
-      console.log("Received result from server:", JSON.stringify(responseData, null, 2));
+        console.log("Received result from server:", JSON.stringify(responseData, null, 2));
 
-      if (responseData.type === 'error') {
-        return { type: "reject", errorMessage: responseData.message };
-      } else {
-        return { type: "accept" };
-      }
+        if (responseData.type === 'error') {
+          return { type: "reject", errorMessage: responseData.message };
+        } else {
+          return { type: "accept" };
+        }
       } catch (error) {
         console.error('Error processing shipping details:', error);
         return { 
@@ -111,23 +142,19 @@ console.log("About to send request to /calculate-shipping-options");
       }
     };
 
-    console.log("Sending request to /calculate-shipping-options");
-
     console.log("Initializing embedded checkout...");
 
-    document.getElementById('loading').style.display = 'flex';
-    document.getElementById('checkout').style.display = 'none';
-
     // Initialize Checkout with shipping calculation
-const checkout = await stripe.initEmbeddedCheckout({
-  fetchClientSecret,
-  onShippingDetailsChange,
-});
-console.log("Checkout initialized, mounting to DOM...");
+    const checkout = await stripe.initEmbeddedCheckout({
+      fetchClientSecret,
+      onShippingDetailsChange,
+    });
+    
+    console.log("Checkout initialized, mounting to DOM...");
 
-// Hide loading and show checkout container
-document.getElementById('loading').style.display = 'none';
-document.getElementById('checkout').style.display = 'block';
+    // Hide loading and show checkout container
+    loadingEl.style.display = 'none';
+    checkoutEl.style.display = 'block';
     
     // Mount Checkout
     checkout.mount('#checkout');
@@ -135,11 +162,21 @@ document.getElementById('checkout').style.display = 'block';
     
   } catch (error) {
     console.error("Initialization error:", error);
-    document.querySelector('#checkout').innerHTML = `
-      <div class="error-message">
-        <p>There was an error initializing the checkout: ${error.message}</p>
-        <p>Please check the console for more details.</p>
-      </div>
-    `;
+    const checkoutEl = document.querySelector('#checkout');
+    if (checkoutEl) {
+      checkoutEl.innerHTML = `
+        <div class="error-message">
+          <p>There was an error initializing the checkout: ${error.message}</p>
+          <p>Please check the console for more details.</p>
+        </div>
+      `;
+      checkoutEl.style.display = 'block';
+    }
+    const loadingEl = document.getElementById('loading');
+    if (loadingEl) {
+      loadingEl.style.display = 'none';
+    }
+  } finally {
+    isInitializing = false;
   }
 }
