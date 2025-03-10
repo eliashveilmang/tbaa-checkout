@@ -276,4 +276,7 @@ res.send({
 });
 });
 
-app.listen(4242, () => console.log('Running on port 4242'));
+const port = process.env.PORT || 4242; // Heroku will set PORT in production
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
+});
