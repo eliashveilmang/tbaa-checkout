@@ -3,6 +3,10 @@ const stripe = Stripe("pk_live_51QP5vhDiRHn1y6KS3GBaWIQqIQ0jgaddsz3Qo2PDBuiSmBFo
   betas: ['embedded_checkout_byol_beta_1']
 });
 
+document.addEventListener('DOMContentLoaded', function() {
+  initialize();
+});
+
 // Create a Checkout Session with dynamic shipping
 async function initialize() {
   try {
@@ -11,25 +15,26 @@ async function initialize() {
       try {
         const response = await fetch("/create-checkout-session", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-        });        
-
-        if (!response.ok) {
-          throw new Error("Failed to create checkout session");
-        }
-    
-        const { id: sessionId } = await response.json(); // Extract session ID
-    
-        const checkout = await stripe.initEmbeddedCheckout({
-          sessionId: sessionId,
+          headers: {
+            'Content-Type': 'application/json'
+          }
         });
-    
-        checkout.mount("#checkout"); // Mount the checkout UI
+
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error(`Error response from server: ${errorText}`);
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log("Client secret received:", data.clientSecret ? "Yes" : "No");
+        return data.clientSecret;
       } catch (error) {
-        console.error("Error:", error);
-        document.getElementById("checkout").innerHTML = "<p>Failed to load checkout.</p>";
+        console.error("Error fetching client secret:", error);
+        throw error;
       }
-    }
+    };
 
     // Call your backend to set shipping options
     // Modify the onShippingDetailsChange function
@@ -138,7 +143,3 @@ document.getElementById('checkout').style.display = 'block';
     `;
   }
 }
-
-document.addEventListener("DOMContentLoaded", () => {
-  initialize();
-});
