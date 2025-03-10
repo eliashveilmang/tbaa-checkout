@@ -1,54 +1,38 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <title>Accept a payment</title>
-    <meta name="description" content="A demo of a payment on Stripe" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <script src="https://js.stripe.com/v3/"></script>
-    <script src="https://tbaa-ehv-4792f0431457.herokuapp.com/checkout.js" defer></script>
-    <style>
-      html, body {
-        margin: 0;
-        padding: 0;
-        height: 100%;
-        width: 100%;
-        overflow: hidden;
-      }
-      #checkout {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        border: none;
-        margin: 0;
-        padding: 0;
-        overflow: hidden;
-      }
-      .error-message {
-        padding: 20px;
-        color: #721c24;
-        background-color: #f8d7da;
-        border: 1px solid #f5c6cb;
-        border-radius: 4px;
-        margin: 20px;
-      }
-      .loading {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100%;
-        width: 100%;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      }
-    </style>
-  </head>
-  <!-- Updated checkout.html -->
+<html>
+<head>
+  <title>Stripe Test</title>
+  <script src="https://js.stripe.com/v3/"></script>
+</head>
 <body>
-  <div id="loading" class="loading">
-    <p>Loading checkout...</p>
-  </div>
-  <div id="checkout"></div>
+  <div id="loading">Loading...</div>
+  <div id="stripe-checkout-container"></div>
+  
+  <script>
+    // Define the server URL
+    const SERVER_URL = "https://tbaa-ehv-4792f0431457.herokuapp.com";
+    
+    // Log to confirm the script is running
+    console.log("Script started, server URL:", SERVER_URL);
+    
+    // Test the API endpoint directly
+    fetch(`${SERVER_URL}/create-checkout-session`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({})
+    })
+    .then(response => {
+      console.log("Response status:", response.status);
+      return response.json();
+    })
+    .then(data => {
+      console.log("API response:", data);
+    })
+    .catch(error => {
+      console.error("API error:", error);
+    });
+  </script>
 </body>
 </html>
