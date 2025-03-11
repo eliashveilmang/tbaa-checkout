@@ -21,7 +21,6 @@ app.use(cors(corsOptions)); // Add CORS middleware before other middleware
 
 // Update your CSP in server.js to be less restrictive
 app.use((req, res, next) => {
-  // Replace your current CSP header with this more permissive one
   res.setHeader("Content-Security-Policy", 
     "default-src 'self' https://js.stripe.com https://api.stripe.com https://checkout.stripe.com;" +
     "script-src 'self' 'unsafe-inline' https://js.stripe.com;" +
