@@ -30,8 +30,8 @@ async function initialize() {
         }
         
         const data = await response.json();
-        console.log("Client secret received:", data.clientSecret ? "Yes" : "No");
-        return data.clientSecret;
+        console.log("Response Data:", data);
+        return data.client_secret;
       } catch (error) {
         console.error("Error fetching client secret:", error);
         throw error;
@@ -132,7 +132,7 @@ document.getElementById('loading').style.display = 'none';
 document.getElementById('checkout').style.display = 'block';
     
     // Mount Checkout
-    checkout.mount('#checkout-container');
+    checkout.mount('#checkout');
     console.log("Checkout mounted");
     
   } catch (error) {

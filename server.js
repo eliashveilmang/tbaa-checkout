@@ -121,7 +121,7 @@ app.post('/create-checkout-session', async (req, res) => {
     });
     
     // Send the session ID to the frontend
-    res.json({ id: session.id });
+    res.json({ client_secret: session.client_secret, session_id: session.id });
 
    // Added conditional logging to prevent potential errors
    if (session) {
