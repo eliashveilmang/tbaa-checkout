@@ -2,7 +2,11 @@
 const SERVER_BASE_URL = "https://tbaa-ehv-4792f0431457.herokuapp.com";
 // This is your public test API key.
 const stripe = Stripe("pk_live_51QP5vhDiRHn1y6KS3GBaWIQqIQ0jgaddsz3Qo2PDBuiSmBFoDbJVqyj2y5LnzSk1vMaTBCa6NnB5fEZEazdegfz2007uJcUD4O", {
-  betas: ['embedded_checkout_byol_beta_1']
+  betas: ['embedded_checkout_byol_beta_1'],
+  // Add this line to allow embedding in Readymag
+  stripeAccount: {
+    businessURL: 'https://readymag.com'
+  }
 });
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -121,10 +125,12 @@ console.log("About to send request to /calculate-shipping-options");
     document.getElementById('checkout').style.display = 'none';
 
     // Initialize Checkout with shipping calculation
-const checkout = await stripe.initEmbeddedCheckout({
-  fetchClientSecret,
-  onShippingDetailsChange,
-});
+    const checkout = await stripe.initEmbeddedCheckout({
+      fetchClientSecret,
+      onShippingDetailsChange,
+      // Add this configuration
+      frameAncestors: ['https://readymag.com', 'https://*.readymag.com'],
+    });
 console.log("Checkout initialized, mounting to DOM...");
 
 // Hide loading and show checkout container

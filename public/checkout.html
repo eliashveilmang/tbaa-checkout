@@ -5,6 +5,19 @@
     <title>Accept a payment</title>
     <meta name="description" content="A demo of a payment on Stripe" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script>
+      // Add this to the head section of checkout.html
+      document.addEventListener('DOMContentLoaded', function() {
+        try {
+          // Check if we're in an iframe
+          if (window !== window.top) {
+            console.log("Running in iframe - parent origin:", document.referrer);
+          }
+        } catch (e) {
+          console.error("Error checking frame status:", e);
+        }
+      });
+    </script>
     <script src="https://js.stripe.com/v3/"></script>
     <script src="checkout.js" defer></script>
     <style>

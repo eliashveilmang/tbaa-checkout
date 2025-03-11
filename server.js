@@ -11,9 +11,9 @@ const app = express();
 
 // Update your CORS configuration in server.js
 const corsOptions = {
-  origin: ['https://js.stripe.com', 'https://api.stripe.com', 'https://checkout.stripe.com', 'https://eliasimg.de', 'https://readymag.com', '*'],
+  origin: ['https://js.stripe.com', 'https://api.stripe.com', 'https://checkout.stripe.com', 'https://eliasimg.de', 'https://readymag.com', 'https://*.readymag.com', '*'],
   methods: ['GET', 'POST', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Origin'],
   credentials: true
 };
 
