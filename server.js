@@ -86,17 +86,6 @@ function getShippingRateId(country) {
 
 app.post('/create-checkout-session', async (req, res) => {
   try {
-    console.log("Request body:", req.body);
-    const shippingDetails = req.body.shippingDetails;  // Ensure this is correct
-    const country = shippingDetails?.address?.country;  // Safely access country
-    console.log("Received country:", country);  // Check if country is received correctly
-    
-    if (!country) {
-      return res.status(400).json({ error: 'Country is required' });
-    }
-
-    const shippingRateId = getShippingRateId(country);
-    
     const session = await stripe.checkout.sessions.create({
       ui_mode: 'embedded',
       shipping_address_collection: {
