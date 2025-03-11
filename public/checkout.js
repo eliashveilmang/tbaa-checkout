@@ -20,7 +20,10 @@ async function initialize() {
           method: "POST",
           headers: {
             'Content-Type': 'application/json'
-          }
+          },
+          body: JSON.stringify({
+            timestamp: Date.now()
+          })
         });
 
         

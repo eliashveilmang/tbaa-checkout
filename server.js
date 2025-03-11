@@ -106,6 +106,10 @@ function getShippingRateId(country) {
 
 app.post('/create-checkout-session', async (req, res) => {
   try {
+
+    // Generate a unique identifier for this session (optional)
+    const sessionTimestamp = Date.now();
+    
     const session = await stripe.checkout.sessions.create({
       ui_mode: 'embedded',
       shipping_address_collection: {
