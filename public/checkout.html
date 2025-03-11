@@ -6,16 +6,32 @@
     <meta name="description" content="A demo of a payment on Stripe" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <script>
-      // Add this to the head section of checkout.html
       document.addEventListener('DOMContentLoaded', function() {
+        // Log parent origin
         try {
-          // Check if we're in an iframe
           if (window !== window.top) {
             console.log("Running in iframe - parent origin:", document.referrer);
+            
+            // Inform the parent frame that we're ready (optional)
+            if (window.parent) {
+              window.parent.postMessage({
+                type: 'CHECKOUT_READY',
+                message: 'Checkout iframe is loaded and ready'
+              }, '*');
+            }
           }
         } catch (e) {
           console.error("Error checking frame status:", e);
         }
+        
+        // Listen for any messages from parent
+        window.addEventListener('message', function(event) {
+          // Check if the message is from trusted sources
+          if (event.origin === 'https://eliasimg.de' || 
+              event.origin === 'https://readymag.com') {
+            console.log("Received message from parent:", event.data);
+          }
+        });
       });
     </script>
     <script src="https://js.stripe.com/v3/"></script>

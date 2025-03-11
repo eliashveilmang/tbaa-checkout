@@ -124,9 +124,8 @@ console.log("About to send request to /calculate-shipping-options");
     // Initialize Checkout with shipping calculation
     const checkout = await stripe.initEmbeddedCheckout({
       fetchClientSecret,
-      onShippingDetailsChange,
-      // Add this to allow embedding in Readymag and eliasimg.de
-      frameAncestors: ['https://readymag.com', 'https://*.readymag.com', 'https://eliasimg.de', 'https://*.eliasimg.de']
+      onShippingDetailsChange
+      // No frameAncestors here
     });
 console.log("Checkout initialized, mounting to DOM...");
 

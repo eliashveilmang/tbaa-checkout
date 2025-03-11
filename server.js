@@ -43,6 +43,18 @@ app.use((req, res, next) => {
   next();
 });
 
+// Add these headers to allow embedding
+app.use((req, res, next) => {
+  // Allow embedding from eliasimg.de
+  res.setHeader('X-Frame-Options', 'ALLOW-FROM https://eliasimg.de');
+  
+  // Set additional security headers
+  res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
+  res.setHeader('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
+  
+  next();
+});
+
 app.options('*', cors(corsOptions));
 
 const YOUR_DOMAIN = 'https://tbaa-ehv-4792f0431457.herokuapp.com';
