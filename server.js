@@ -11,7 +11,7 @@ const app = express();
 
 // Update your CORS configuration in server.js
 const corsOptions = {
-  origin: ['https://tbaa-ehv-4792f0431457.herokuapp.com', 'https://readymag.com', 'https://*.readymag.com', 'https://eliasimg.de', '*'],
+  origin: ['https://eliasimg.de', 'https://*.eliasimg.de', 'https://readymag.com', 'https://*.readymag.com', '*'],
   methods: ['GET', 'POST', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
@@ -27,6 +27,7 @@ app.use((req, res, next) => {
     "connect-src * 'unsafe-inline';" +
     "style-src * 'unsafe-inline';" +
     "frame-src * 'unsafe-inline';" +
+    "frame-ancestors 'self' https://eliasimg.de https://*.eliasimg.de https://readymag.com https://*.readymag.com;" +
     "img-src * data: 'unsafe-inline';" +
     "font-src * 'unsafe-inline';"
   );
