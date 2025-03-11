@@ -5,35 +5,6 @@
     <title>Accept a payment</title>
     <meta name="description" content="A demo of a payment on Stripe" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <script>
-      document.addEventListener('DOMContentLoaded', function() {
-        // Log parent origin
-        try {
-          if (window !== window.top) {
-            console.log("Running in iframe - parent origin:", document.referrer);
-            
-            // Inform the parent frame that we're ready (optional)
-            if (window.parent) {
-              window.parent.postMessage({
-                type: 'CHECKOUT_READY',
-                message: 'Checkout iframe is loaded and ready'
-              }, '*');
-            }
-          }
-        } catch (e) {
-          console.error("Error checking frame status:", e);
-        }
-        
-        // Listen for any messages from parent
-        window.addEventListener('message', function(event) {
-          // Check if the message is from trusted sources
-          if (event.origin === 'https://eliasimg.de' || 
-              event.origin === 'https://readymag.com') {
-            console.log("Received message from parent:", event.data);
-          }
-        });
-      });
-    </script>
     <script src="https://js.stripe.com/v3/"></script>
     <script src="checkout.js" defer></script>
     <style>
@@ -73,11 +44,41 @@
       }
     </style>
   </head>
-  <!-- Updated checkout.html -->
-<body>
-  <div id="loading" class="loading">
-    <p>Loading checkout...</p>
-  </div>
-  <div id="checkout"></div>
-</body>
+  <body>
+    <div id="loading" class="loading">
+      <p>Loading checkout...</p>
+    </div>
+    <div id="checkout"></div>
+    
+    <!-- Add this script to detect embedding issues -->
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        console.log("Checkout page loaded");
+        
+        // Check if we're in an iframe
+        const isInIframe = window !== window.top;
+        console.log("Is in iframe:", isInIframe);
+        
+        if (isInIframe) {
+          console.log("Running in iframe - parent origin:", document.referrer);
+          
+          // Add a fallback mechanism for if embedded checkout fails
+          setTimeout(function() {
+            const checkoutElement = document.getElementById('checkout');
+            // If the checkout hasn't properly loaded within 5 seconds
+            if (checkoutElement && checkoutElement.children.length === 0) {
+              console.log("Checkout appears to have failed to load, suggesting direct link");
+              document.body.innerHTML = `
+                <div style="padding: 20px; text-align: center;">
+                  <h2>Checkout Loading Issue</h2>
+                  <p>We're experiencing difficulties loading the checkout in this frame.</p>
+                  <p>Please <a href="https://tbaa-ehv-4792f0431457.herokuapp.com/checkout.html" target="_blank">click here</a> to open the checkout directly.</p>
+                </div>
+              `;
+            }
+          }, 5000);
+        }
+      });
+    </script>
+  </body>
 </html>
