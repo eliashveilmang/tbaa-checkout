@@ -132,7 +132,7 @@ document.getElementById('loading').style.display = 'none';
 document.getElementById('checkout').style.display = 'block';
     
     // Mount Checkout
-    checkout.mount('#checkout');
+    checkout.mount('#checkout-container');
     console.log("Checkout mounted");
     
   } catch (error) {
