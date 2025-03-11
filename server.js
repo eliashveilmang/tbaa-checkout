@@ -11,7 +11,7 @@ const app = express();
 
 // Update your CORS configuration in server.js
 const corsOptions = {
-  origin: ['https://eliasimg.de', 'https://*.eliasimg.de', 'https://readymag.com', 'https://*.readymag.com', '*'],
+  origin: ['https://js.stripe.com', 'https://api.stripe.com', 'https://checkout.stripe.com', 'https://eliasimg.de', 'https://readymag.com', '*'],
   methods: ['GET', 'POST', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
@@ -21,22 +21,30 @@ app.use(cors(corsOptions)); // Add CORS middleware before other middleware
 
 // Update your CSP in server.js to be less restrictive
 app.use((req, res, next) => {
+  // Replace your current CSP header with this more permissive one
   res.setHeader("Content-Security-Policy", 
-    "default-src * 'unsafe-inline' 'unsafe-eval';" +
-    "script-src * 'unsafe-inline' 'unsafe-eval';" +
-    "connect-src * 'unsafe-inline';" +
-    "style-src * 'unsafe-inline';" +
-    "frame-src * 'unsafe-inline';" +
+    "default-src 'self' https://js.stripe.com https://api.stripe.com https://checkout.stripe.com;" +
+    "script-src 'self' 'unsafe-inline' https://js.stripe.com;" +
+    "connect-src 'self' https://api.stripe.com https://checkout.stripe.com;" +
+    "style-src 'self' 'unsafe-inline' https://js.stripe.com;" +
+    "frame-src 'self' https://js.stripe.com https://checkout.stripe.com;" +
     "frame-ancestors 'self' https://eliasimg.de https://*.eliasimg.de https://readymag.com https://*.readymag.com;" +
-    "img-src * data: 'unsafe-inline';" +
-    "font-src * 'unsafe-inline';"
+    "img-src 'self' data: https://js.stripe.com"
   );
   next();
 });
 
-
 app.use(express.static('public'));
 app.use(express.json()); // Add this to parse JSON request bodies
+
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  next();
+});
+
+app.options('*', cors(corsOptions));
 
 const YOUR_DOMAIN = 'https://tbaa-ehv-4792f0431457.herokuapp.com';
 
