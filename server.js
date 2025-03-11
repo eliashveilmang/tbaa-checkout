@@ -27,7 +27,7 @@ app.use((req, res, next) => {
     "connect-src 'self' https://api.stripe.com https://checkout.stripe.com;" +
     "style-src 'self' 'unsafe-inline' https://js.stripe.com;" +
     "frame-src 'self' https://js.stripe.com https://checkout.stripe.com;" +
-    "frame-ancestors 'self' https://eliasimg.de https://*.eliasimg.de https://readymag.com https://*.readymag.com;" +
+    "frame-ancestors 'self' https://eliasimg.de https://*.eliasimg.de https://readymag.com https://*.readymag.com https://js.stripe.com;" +
     "img-src 'self' data: https://js.stripe.com"
   );
   next();
@@ -49,7 +49,7 @@ app.use((req, res, next) => {
   res.setHeader('X-Frame-Options', 'ALLOW-FROM https://eliasimg.de');
   
   // Set additional security headers
-  res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
+  res.setHeader('Cross-Origin-Embedder-Policy', 'unsafe-none');
   res.setHeader('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
   
   next();
