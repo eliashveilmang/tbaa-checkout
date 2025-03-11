@@ -132,7 +132,7 @@ app.post('/create-checkout-session', async (req, res) => {
       console.log("Shipping Options:", JSON.stringify(session.shipping_options, null, 2));
     }
   }
-  
+
 } catch (error) {
   console.error('Error creating session:', error);
   res.status(500).send({ 
@@ -162,12 +162,13 @@ console.log("===== SHIPPING OPTIONS REQUEST =====");
 try {
   const {checkout_session_id, shipping_details} = req.body;
 
-  if (!shipping_details) {
-    return res.status(400).json({ type: "error", message: "Shipping details missing in request." });
-  }
-  
-  console.log("Detailed Shipping Details Check:");
-  console.log("Full Shipping Details:", JSON.stringify(shipping_details, null, 2));
+  // Check if shipping details are provided
+    if (!shipping_details) {
+      return res.status(400).json({ type: "error", message: "Shipping details missing in request." });
+    }
+
+    console.log("Detailed Shipping Details Check:");
+    console.log("Full Shipping Details:", JSON.stringify(shipping_details, null, 2));
   
   // Robust validation
   const isAddressComplete = 
@@ -204,6 +205,13 @@ try {
   const shippingRateId = getShippingRateId(country);
   
   console.log("Selected Shipping Rate ID:", shippingRateId);
+
+  // Send the response without using `return`
+  res.json({
+    type: 'success',
+    shippingRateId: shippingRateId,
+    sessionId: checkout_session_id
+  });
   
   // Retrieve current session to verify its state
   const currentSession = await stripe.checkout.sessions.retrieve(checkout_session_id);
