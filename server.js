@@ -9,26 +9,26 @@ const express = require('express');
 const cors = require('cors'); // Add this line
 const app = express();
 
-// Configure CORS to allow requests from Readymag
+// Update your CORS configuration in server.js
 const corsOptions = {
-  origin: '*', // For testing, allow all origins. In production, specify your Readymag URL
+  origin: ['https://tbaa-ehv-4792f0431457.herokuapp.com', 'https://readymag.com', 'https://*.readymag.com', 'https://eliasimg.de', '*'],
   methods: ['GET', 'POST', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
 };
 
 app.use(cors(corsOptions)); // Add CORS middleware before other middleware
 
+// Update your CSP in server.js to be less restrictive
 app.use((req, res, next) => {
   res.setHeader("Content-Security-Policy", 
-    "default-src 'self';" +
-    "script-src 'self' https://js.stripe.com;" +
-    "connect-src 'self' https://api.stripe.com https://merchant-ui-api.stripe.com https://checkout.stripe.com https://tbaa-ehv-4792f0431457.herokuapp.com;" +
-    "style-src 'self' 'unsafe-inline' https://js.stripe.com;" +
-    "frame-src 'self' https://js.stripe.com https://checkout.stripe.com https://tbaa-ehv-4792f0431457.herokuapp.com;" +
-    "img-src 'self' data: https://js.stripe.com;" +
-    "font-src 'self';" +
-    "object-src 'none';" +
-    "base-uri 'self';"
+    "default-src * 'unsafe-inline' 'unsafe-eval';" +
+    "script-src * 'unsafe-inline' 'unsafe-eval';" +
+    "connect-src * 'unsafe-inline';" +
+    "style-src * 'unsafe-inline';" +
+    "frame-src * 'unsafe-inline';" +
+    "img-src * data: 'unsafe-inline';" +
+    "font-src * 'unsafe-inline';"
   );
   next();
 });
