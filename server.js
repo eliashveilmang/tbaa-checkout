@@ -86,25 +86,26 @@ function getShippingRateId(country) {
 
 app.post('/create-checkout-session', async (req, res) => {
   try {
+    const shippingCountry = req.body.shipping_address.country; // Assuming the country comes from the request body
+    let shippingOptions = [];
+
+    // Determine the shipping option based on the country
+    if (shippingCountry === 'DE') {
+      shippingOptions = [{ shipping_rate: SHIPPING_RATES.DE }];
+    } else if (EU_COUNTRIES.includes(shippingCountry)) {
+      shippingOptions = [{ shipping_rate: SHIPPING_RATES.EU }];
+    } else {
+      shippingOptions = [{ shipping_rate: SHIPPING_RATES.OTHER }];
+    }
+
     const session = await stripe.checkout.sessions.create({
       ui_mode: 'embedded',
       shipping_address_collection: {
         allowed_countries: ['US', 'CA', 'DE', 'GB', 'FR', 'IT', 'ES', 'AT', 'BE', 'NL', 'DK', 'SE', 'FI', 'NO'], 
       },
-      shipping_options: [
-        {
-          shipping_rate: SHIPPING_RATES.DE, // Default to German shipping
-        },
-        {
-          shipping_rate: SHIPPING_RATES.EU, // EU shipping option
-        },
-        {
-          shipping_rate: SHIPPING_RATES.OTHER, // International shipping option
-        }
-      ],
+      shipping_options: shippingOptions, // Dynamically set the shipping options
       line_items: [
         {
-          // Provide the exact Price ID of the product you want to sell
           price: 'price_1R055YDiRHn1y6KSCIrUYuxJ',
           quantity: 1,
         },
