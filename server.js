@@ -84,7 +84,7 @@ function getShippingRateId(country) {
   }
 }
 
-app.post('/create-checkout-session', async (req, res) => {
+app.post('https://tbaa-ehv-4792f0431457.herokuapp.com/create-checkout-session', async (req, res) => {
   try {
     const session = await stripe.checkout.sessions.create({
       ui_mode: 'embedded',
