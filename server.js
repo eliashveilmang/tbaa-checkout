@@ -18,14 +18,13 @@ const corsOptions = {
 
 app.use(cors(corsOptions)); // Add CORS middleware before other middleware
 
-// Set Content-Security-Policy header for all responses
 app.use((req, res, next) => {
   res.setHeader("Content-Security-Policy", 
     "default-src 'self';" +
     "script-src 'self' https://js.stripe.com;" +
-    "connect-src 'self' https://api.stripe.com https://merchant-ui-api.stripe.com;" +
+    "connect-src 'self' https://api.stripe.com https://merchant-ui-api.stripe.com https://checkout.stripe.com https://tbaa-ehv-4792f0431457.herokuapp.com;" +
     "style-src 'self' 'unsafe-inline' https://js.stripe.com;" +
-    "frame-src https://js.stripe.com;" +
+    "frame-src 'self' https://js.stripe.com https://checkout.stripe.com https://tbaa-ehv-4792f0431457.herokuapp.com;" +
     "img-src 'self' data: https://js.stripe.com;" +
     "font-src 'self';" +
     "object-src 'none';" +
@@ -33,6 +32,7 @@ app.use((req, res, next) => {
   );
   next();
 });
+
 
 app.use(express.static('public'));
 app.use(express.json()); // Add this to parse JSON request bodies
