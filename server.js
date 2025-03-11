@@ -132,8 +132,7 @@ app.post('/create-checkout-session', async (req, res) => {
       console.log("Shipping Options:", JSON.stringify(session.shipping_options, null, 2));
     }
   }
-
-  res.send({clientSecret: session.client_secret});
+  
 } catch (error) {
   console.error('Error creating session:', error);
   res.status(500).send({ 
