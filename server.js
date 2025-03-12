@@ -27,7 +27,7 @@ app.use((req, res, next) => {
     "connect-src 'self' https://api.stripe.com https://checkout.stripe.com;" +
     "style-src 'self' 'unsafe-inline' https://js.stripe.com;" +
     "frame-src 'self' https://js.stripe.com https://checkout.stripe.com;" +
-    "frame-ancestors 'self' https://eliasimg.de https://*.eliasimg.de https://readymag.com https://*.readymag.com https://js.stripe.com;" +
+    "frame-ancestors 'self' https://eliasimg.de https://*.eliasimg.de https://readymag.com https://*.readymag.com;" +
     "img-src 'self' data: https://js.stripe.com"
   );
   next();
@@ -57,7 +57,10 @@ app.use((req, res, next) => {
 
 app.options('*', cors(corsOptions));
 
-const YOUR_DOMAIN = 'https://tbaa-ehv-4792f0431457.herokuapp.com';
+app.use(express.static('public'));
+app.use(express.json()); // Add this to parse JSON request bodies
+
+const YOUR_DOMAIN = 'http://localhost:4242';
 
 // Define your shipping rates
 const SHIPPING_RATES = {
@@ -106,10 +109,6 @@ function getShippingRateId(country) {
 
 app.post('/create-checkout-session', async (req, res) => {
   try {
-
-    // Generate a unique identifier for this session (optional)
-    const sessionTimestamp = Date.now();
-    
     const session = await stripe.checkout.sessions.create({
       ui_mode: 'embedded',
       shipping_address_collection: {
@@ -134,7 +133,7 @@ app.post('/create-checkout-session', async (req, res) => {
         },
       ],
       mode: 'payment',
-      return_url: `${YOUR_DOMAIN}/return.html?session_id={CHECKOUT_SESSION_ID}`,
+      return_url: `https://eliasimg.de/return.html?session_id={CHECKOUT_SESSION_ID}`,
       automatic_tax: {enabled: true},
       // Add this permissions parameter to allow onShippingDetailsChange
       permissions: {
@@ -143,9 +142,6 @@ app.post('/create-checkout-session', async (req, res) => {
         }
       }
     });
-    
-    // Send the session ID to the frontend
-    res.json({ client_secret: session.client_secret, session_id: session.id });
 
    // Added conditional logging to prevent potential errors
    if (session) {
@@ -157,6 +153,7 @@ app.post('/create-checkout-session', async (req, res) => {
     }
   }
 
+  res.send({clientSecret: session.client_secret});
 } catch (error) {
   console.error('Error creating session:', error);
   res.status(500).send({ 
@@ -186,13 +183,12 @@ console.log("===== SHIPPING OPTIONS REQUEST =====");
 try {
   const {checkout_session_id, shipping_details} = req.body;
 
-  // Check if shipping details are provided
-    if (!shipping_details) {
-      return res.status(400).json({ type: "error", message: "Shipping details missing in request." });
-    }
-
-    console.log("Detailed Shipping Details Check:");
-    console.log("Full Shipping Details:", JSON.stringify(shipping_details, null, 2));
+  if (!shipping_details) {
+    return res.status(400).json({ type: "error", message: "Shipping details missing in request." });
+  }
+  
+  console.log("Detailed Shipping Details Check:");
+  console.log("Full Shipping Details:", JSON.stringify(shipping_details, null, 2));
   
   // Robust validation
   const isAddressComplete = 
@@ -229,13 +225,6 @@ try {
   const shippingRateId = getShippingRateId(country);
   
   console.log("Selected Shipping Rate ID:", shippingRateId);
-
-  // Send the response without using `return`
-  res.json({
-    type: 'success',
-    shippingRateId: shippingRateId,
-    sessionId: checkout_session_id
-  });
   
   // Retrieve current session to verify its state
   const currentSession = await stripe.checkout.sessions.retrieve(checkout_session_id);
@@ -310,7 +299,4 @@ res.send({
 });
 });
 
-const port = process.env.PORT || 4242; // Heroku will set PORT in production
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
-});
+app.listen(4242, () => console.log('Running on port 4242'));
